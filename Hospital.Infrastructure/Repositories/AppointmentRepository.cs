@@ -1,4 +1,4 @@
-﻿using Hospital.Application.Interfaces;
+﻿using Hospital.Application.Interfaces.Repositories;
 using Hospital.Domain.Entities;
 using Hospital.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;

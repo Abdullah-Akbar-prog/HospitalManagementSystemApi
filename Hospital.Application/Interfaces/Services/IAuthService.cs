@@ -1,6 +1,6 @@
 ﻿using Hospital.Application.DTOs;
 
-namespace Hospital.Application.Interfaces
+namespace Hospital.Application.Interfaces.Services
 {
     public interface IAuthService
     {

@@ -1,5 +1,5 @@
 ﻿using Hospital.Application.DTOs;
-using Hospital.Application.Interfaces;
+using Hospital.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -36,7 +36,7 @@ namespace Hospital.Controllers
         public async Task<IActionResult> Create(DoctorDto dto)
         {
             var doctor = await _doctorService.CreateAsync(dto);
-            return Ok(new { doctor });
+            return Ok(new { message = "Doctor create successfully" });
         }
 
         [HttpPut("{id}")]
@@ -48,7 +48,18 @@ namespace Hospital.Controllers
                 return BadRequest("Id mismatch");
             }
 
-            var doctor = await _doctorService.update
+            var doctor = await _doctorService.UpdateAsync(dto);
+            if (!doctor) return NotFound(new { message = "Doctor not found" });
+            return Ok(new { message = "Doctor updated successfully" });
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var doctor = await _doctorService.DeleteAsync(id);
+            if (!doctor) return NotFound(new { message = "Doctor not found" });
+            return Ok(new { message = "Doctor delete successfully" });
         }
     }
 }

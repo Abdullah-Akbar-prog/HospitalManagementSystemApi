@@ -1,4 +1,4 @@
-﻿using Hospital.Application.Interfaces;
+﻿using Hospital.Application.Interfaces.Services;
 using Hospital.Infrastructure.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;

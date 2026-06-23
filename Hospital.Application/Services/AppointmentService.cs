@@ -1,5 +1,6 @@
 ﻿using Hospital.Application.DTOs;
-using Hospital.Application.Interfaces;
+using Hospital.Application.Interfaces.Repositories;
+using Hospital.Application.Interfaces.Services;
 using Hospital.Domain.Entities;
 using Hospital.Domain.Enums;
 
@@ -14,21 +15,12 @@ namespace Hospital.Application.Services
             _appointmentRepository = appointmentRepository;
         }
 
-        public async Task<int> BookAppointmentAsync(AppointmentDto dto)
+        public async Task<int> BookAppointmentAsync(AppointmentDto dto, int patientId)
         {
-            var existingAppointment = await _appointmentRepository.GetByDoctorAndTime(
-            dto.DoctorId,
-            dto.AppointmentDate);
-
-            if (existingAppointment != null)
-            {
-                throw new Exception("Doctor already booked at this time.");
-            }
-
             var appointment = new Appointment
             {
+                PatientId = patientId,
                 DoctorId = dto.DoctorId,
-                PatientId = dto.PatientId,
                 AppointmentDate = dto.AppointmentDate,
                 Reason = dto.Reason,
                 Status = AppointmentStatus.Scheduled
@@ -56,11 +48,25 @@ namespace Hospital.Application.Services
             {
                 Id = a.Id,
                 DoctorId = a.DoctorId,
-                PatientId = a.PatientId,
                 AppointmentDate = a.AppointmentDate,
                 Reason = a.Reason,
                 Status = a.Status.ToString()
             }).ToList();
+        }
+
+        public async Task<AppointmentDto?> GetByIdAsync(int id)
+        {
+            var appointments = await _appointmentRepository.GetByIdAsync(id);
+            if (appointments == null) return null;
+
+            return new AppointmentDto
+            {
+                Id = appointments.Id,
+                DoctorId = appointments.DoctorId,
+                AppointmentDate = appointments.AppointmentDate,
+                Reason = appointments.Reason,
+                Status = appointments.Status.ToString()
+            };
         }
     }
 }

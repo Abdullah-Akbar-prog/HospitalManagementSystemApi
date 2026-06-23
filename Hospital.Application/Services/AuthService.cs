@@ -1,5 +1,5 @@
 ﻿using Hospital.Application.DTOs;
-using Hospital.Application.Interfaces;
+using Hospital.Application.Interfaces.Services;
 using Hospital.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 

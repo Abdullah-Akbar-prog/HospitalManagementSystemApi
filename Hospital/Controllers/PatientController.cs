@@ -1,5 +1,5 @@
 ﻿using Hospital.Application.DTOs;
-using Hospital.Application.Interfaces;
+using Hospital.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

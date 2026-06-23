@@ -1,6 +1,6 @@
 ﻿using Hospital.Domain.Entities;
 
-namespace Hospital.Application.Interfaces
+namespace Hospital.Application.Interfaces.Repositories
 {
     public interface IDoctorRepository
     {

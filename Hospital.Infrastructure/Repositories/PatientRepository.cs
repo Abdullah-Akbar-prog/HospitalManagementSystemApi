@@ -1,4 +1,4 @@
-﻿using Hospital.Application.Interfaces;
+﻿using Hospital.Application.Interfaces.Repositories;
 using Hospital.Domain.Entities;
 using Hospital.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -42,6 +42,11 @@ namespace Hospital.Infrastructure.Repositories
         public async Task<Patient?> GetByIdAsync(int id)
         {
             return await _dbContext.Patients.FindAsync(id);
+        }
+
+        public async Task<Patient?> GetByUserIdAsync(string id)
+        {
+            return await _dbContext.Patients.FirstOrDefaultAsync(p => p.UserId == id);
         }
 
         public async Task UpdateAsync(Patient patient)

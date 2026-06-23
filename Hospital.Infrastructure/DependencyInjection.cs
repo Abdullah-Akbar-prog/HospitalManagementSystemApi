@@ -1,4 +1,5 @@
-﻿using Hospital.Application.Interfaces;
+﻿using Hospital.Application.Interfaces.Repositories;
+using Hospital.Application.Interfaces.Services;
 using Hospital.Application.Services;
 using Hospital.Infrastructure.Data;
 using Hospital.Infrastructure.Identity;

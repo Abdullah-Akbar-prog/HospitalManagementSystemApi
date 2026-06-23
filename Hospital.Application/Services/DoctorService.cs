@@ -1,5 +1,6 @@
 ﻿using Hospital.Application.DTOs;
-using Hospital.Application.Interfaces;
+using Hospital.Application.Interfaces.Repositories;
+using Hospital.Application.Interfaces.Services;
 using Hospital.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
@@ -66,6 +67,23 @@ namespace Hospital.Application.Services
                 Specialization = doctor.Specialization,
                 LicenseNumber = doctor.LicenseNumber
             };
+        }
+
+        public async Task<bool> UpdateAsync(DoctorDto dto)
+        {
+            var doctor = await _doctorRepository.GetByIdAsync(dto.Id);
+            if (doctor == null) return false;
+
+            doctor.FullName = dto.FullName;
+            doctor.Specialization = dto.Specialization;
+            doctor.LicenseNumber = dto.LicenseNumber;
+            await _doctorRepository.UpdateAsync(doctor);
+            return true;
+        }
+
+        public async Task<bool> DeleteAsync(int id)
+        {
+            return await _doctorRepository.DeleteAsync(id);
         }
     }
 }
