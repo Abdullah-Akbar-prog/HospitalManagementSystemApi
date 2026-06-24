@@ -2,6 +2,7 @@
 using Hospital.Application.Interfaces.Services;
 using Hospital.Application.Mapping;
 using Hospital.Application.Services;
+using Hospital.Application.Setting;
 using Hospital.Infrastructure.Data;
 using Hospital.Infrastructure.Identity;
 using Hospital.Infrastructure.Repositories;
@@ -22,6 +23,10 @@ namespace Hospital.Infrastructure
             // Register the DbContext with the connection string from configuration
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddAutoMapper(typeof(MappingProfile));
+            services.Configure<JwtSettings>(configuration.GetSection("Jwt"));
+
             services.AddIdentity<ApplicationUser, IdentityRole>(option =>
             {
                 option.Password.RequireDigit = true;
@@ -57,7 +62,6 @@ namespace Hospital.Infrastructure
                 };
             });
 
-            services.AddAutoMapper(typeof(MappingProfile));
             services.AddHttpContextAccessor();
             // Register repositories
             services.AddScoped<IAppointmentRepository, AppointmentRepository>();

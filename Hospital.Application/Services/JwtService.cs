@@ -1,6 +1,7 @@
 ﻿using Hospital.Application.Interfaces.Services;
+using Hospital.Application.Setting;
 using Hospital.Infrastructure.Identity;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -10,11 +11,11 @@ namespace Hospital.Application.Services
 {
     public class JwtService : IJwtService
     {
-        private readonly IConfiguration _config;
+        private readonly JwtSettings _jwt;
 
-        public JwtService(IConfiguration configuration)
+        public JwtService(IOptions<JwtSettings> jwtOption)
         {
-            _config = configuration;
+            _jwt = jwtOption.Value;
         }
 
         public string GenerateToken(ApplicationUser user, IList<string> roles)
@@ -22,24 +23,21 @@ namespace Hospital.Application.Services
             var claims = new List<Claim>
             {
                new Claim(ClaimTypes.NameIdentifier,user.Id),
-               new Claim(ClaimTypes.Email,user.FullName),
+               new Claim(ClaimTypes.Email,user.Email?? string.Empty),
                new Claim(ClaimTypes.Name,user.FullName),
             };
+            claims.AddRange(roles.Select(x => new Claim(ClaimTypes.Role, x)));
 
-            foreach (var role in roles)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, role));
-            }
             var key = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+            Encoding.UTF8.GetBytes(_jwt.Key));
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
-             issuer: _config["Jwt:Issuer"],
-             audience: _config["Jwt:Audience"],
+             issuer: _jwt.Issuer,
+             audience: _jwt.Audience,
              claims: claims,
-             expires: DateTime.Now.AddMinutes(Convert.ToDouble(_config["Jwt:DurationInMinutes"])),
+             expires: DateTime.UtcNow.AddMinutes(_jwt.DurationInMinutes),
              signingCredentials: creds);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
