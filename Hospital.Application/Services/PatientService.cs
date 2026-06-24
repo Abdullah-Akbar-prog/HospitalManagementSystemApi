@@ -1,4 +1,5 @@
-﻿using Hospital.Application.DTOs;
+﻿using AutoMapper;
+using Hospital.Application.DTOs;
 using Hospital.Application.Interfaces.Repositories;
 using Hospital.Application.Interfaces.Services;
 using Hospital.Domain.Entities;
@@ -8,56 +9,46 @@ namespace Hospital.Application.Services
     public class PatientService : IPatientService
     {
         private readonly IPatientRepository _patientRepository;
+        private readonly IMapper _mapper;
 
-        public PatientService(IPatientRepository patientRepository)
+        public PatientService(IPatientRepository patientRepository, IMapper mapper)
         {
             _patientRepository = patientRepository;
+            _mapper = mapper;
         }
 
         public async Task<int> CreateAsync(PatientDto dto, string userId)
         {
-            var patient = new Patient
-            {
-                UserId = userId,
-                FullName = dto.FullName,
-                DateOfBirth = dto.DateOfBirth,
-                Gender = dto.Gender,
-                Phone = dto.Phone
-            };
+            var patient = _mapper.Map<Patient>(dto);
+            patient.UserId = userId;
 
             var result = await _patientRepository.AddAsync(patient);
 
             return result.Id;
         }
 
+        public async Task<bool> DeleteAsync(int id)
+        {
+            return await _patientRepository.DeleteAsync(id);
+        }
+
         public async Task<List<PatientDto>> GetAllAsync()
         {
             var patient = await _patientRepository.GetAllAsync();
-            return patient.Select(p => new PatientDto
-            {
-                Id = p.Id,
-                UserId = p.UserId,
-                FullName = p.FullName,
-                DateOfBirth = p.DateOfBirth,
-                Gender = p.Gender,
-                Phone = p.Phone
-            }).ToList();
+            return _mapper.Map<List<PatientDto>>(patient);
         }
 
         public async Task<PatientDto> GetByIdAsync(int id)
         {
-            var patient = await _patientRepository.GetByIdAsync(id);
-            if (patient == null) return null;
+            var patient = await _patientRepository.GetByIdAsync(id)
+            ?? throw new KeyNotFoundException($"Patient {id} not found.");
 
-            return new PatientDto
-            {
-                Id = patient.Id,
-                UserId = patient.UserId,
-                FullName = patient.FullName,
-                DateOfBirth = patient.DateOfBirth,
-                Gender = patient.Gender,
-                Phone = patient.Phone
-            };
+            return _mapper.Map<PatientDto>(patient);
+        }
+
+        public async Task<Patient?> GetByUserIdAsync(string userId)
+        {
+            return await _patientRepository.GetByUserIdAsync(userId);
         }
 
         public async Task<bool> UpdateAsync(PatientDto dto)
@@ -65,10 +56,7 @@ namespace Hospital.Application.Services
             var patient = await _patientRepository.GetByIdAsync(dto.Id);
             if (patient == null) return false;
 
-            patient.FullName = dto.FullName;
-            patient.DateOfBirth = dto.DateOfBirth;
-            patient.Gender = dto.Gender;
-            patient.Phone = dto.Phone;
+            _mapper.Map(dto, patient);
 
             await _patientRepository.UpdateAsync(patient);
             return true;

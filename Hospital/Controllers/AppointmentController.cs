@@ -9,7 +9,7 @@ namespace Hospital.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public class AppointmentController : ControllerBase
     {
         private readonly IAppointmentService _appointmentService;

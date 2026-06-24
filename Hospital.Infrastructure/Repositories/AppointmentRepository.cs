@@ -5,32 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Hospital.Infrastructure.Repositories
 {
-    public class AppointmentRepository : IAppointmentRepository
+    public class AppointmentRepository : Repository<Appointment>, IAppointmentRepository
     {
-        private readonly ApplicationDbContext _dbContext;
-
-        public AppointmentRepository(ApplicationDbContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
-
-        public async Task<Appointment> AddAsync(Appointment appointment)
-        {
-            await _dbContext.Appointments.AddAsync(appointment);
-            await _dbContext.SaveChangesAsync();
-            return appointment;
-        }
-
-        public async Task<bool> DeleteAsync(int id)
-        {
-            var appointment = await _dbContext.Appointments.FindAsync(id);
-            if (appointment == null)
-                return false;
-
-            _dbContext.Appointments.Remove(appointment);
-            await _dbContext.SaveChangesAsync();
-            return true;
-        }
+        public AppointmentRepository(ApplicationDbContext dbContext) : base(dbContext) { }
 
         public async Task<List<Appointment>> GetAllAsync()
         {
@@ -52,12 +29,6 @@ namespace Hospital.Infrastructure.Repositories
             .Include(a => a.Patient)
             .Include(a => a.Doctor)
             .FirstOrDefaultAsync(a => a.Id == id);
-        }
-
-        public async Task UpdateAsync(Appointment appointment)
-        {
-            _dbContext.Appointments.Update(appointment);
-            await _dbContext.SaveChangesAsync();
         }
     }
 }

@@ -2,12 +2,8 @@
 
 namespace Hospital.Application.Interfaces.Repositories
 {
-    public interface IDoctorRepository
+    public interface IDoctorRepository : IRepository<Doctor>
     {
-        Task<Doctor> AddAsync(Doctor doctor);
-        Task<List<Doctor>> GetAllAsync();
-        Task<Doctor?> GetByIdAsync(int id);
-        Task UpdateAsync(Doctor doctor);
-        Task<bool> DeleteAsync(int id);
+        Task<Doctor?> GetByUserIdAsync(string UserId);
     }
 }
