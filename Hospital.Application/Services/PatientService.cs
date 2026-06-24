@@ -2,6 +2,7 @@
 using Hospital.Application.DTOs;
 using Hospital.Application.Interfaces.Repositories;
 using Hospital.Application.Interfaces.Services;
+using Hospital.Domain.Common;
 using Hospital.Domain.Entities;
 
 namespace Hospital.Application.Services
@@ -32,10 +33,18 @@ namespace Hospital.Application.Services
             return await _patientRepository.DeleteAsync(id);
         }
 
-        public async Task<List<PatientDto>> GetAllAsync()
+        public async Task<PagedResult<PatientDto>> GetAllAsync(int pageNumber, int pageSize)
         {
-            var patient = await _patientRepository.GetAllAsync();
-            return _mapper.Map<List<PatientDto>>(patient);
+            var all = await _patientRepository.GetAllAsync();
+            var item = all.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+
+            return new PagedResult<PatientDto>
+            {
+                Items = _mapper.Map<List<PatientDto>>(item),
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalCount = all.Count
+            };
         }
 
         public async Task<PatientDto> GetByIdAsync(int id)

@@ -18,9 +18,9 @@ namespace Hospital.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            return Ok(await _patientService.GetAllAsync());
+            return Ok(await _patientService.GetAllAsync(pageNumber, pageSize));
         }
 
         [HttpGet("{id}")]
