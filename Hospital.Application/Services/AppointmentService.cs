@@ -41,6 +41,11 @@ namespace Hospital.Application.Services
             return true;
         }
 
+        public Task<bool> CancelAppointmentAsync(int id, int? callerPatientId, int? callerDoctorId, bool isAdmin)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<List<AppointmentDto>> GetAllAsync()
         {
             var appointments = await _appointmentRepository.GetAllAsync();
@@ -52,6 +57,11 @@ namespace Hospital.Application.Services
                 Reason = a.Reason,
                 Status = a.Status.ToString()
             }).ToList();
+        }
+
+        public Task<List<AppointmentDto?>> GetByDoctorIdAsync(int id)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<AppointmentDto?> GetByIdAsync(int id)
@@ -67,6 +77,11 @@ namespace Hospital.Application.Services
                 Reason = appointments.Reason,
                 Status = appointments.Status.ToString()
             };
+        }
+
+        public Task<List<AppointmentDto?>> GetByPatientIdAsync(int id)
+        {
+            throw new NotImplementedException();
         }
     }
 }
