@@ -2,6 +2,7 @@
 using Hospital.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Hospital.Controllers
 {
@@ -35,9 +36,14 @@ namespace Hospital.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(PatientDto dto)
         {
-            var patient = await _patientService.CreateAsync(dto);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+            var patient = await _patientService.CreateAsync(dto, userId);
 
-            return Ok(patient);
+            return Ok(new { id = patient, message = "Patient profile created successfully" });
         }
 
         [HttpPut("{id}")]

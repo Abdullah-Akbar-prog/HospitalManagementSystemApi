@@ -5,7 +5,7 @@
         public bool Success { get; set; }
         public string Message { get; set; }
         public T? Data { get; set; }
-        public static ApiResponse<T> SuccessResponse(string message = "", T data)
+        public static ApiResponse<T> SuccessResponse(T data, string message = "")
         {
             return new ApiResponse<T>
             {

@@ -6,8 +6,8 @@ namespace Hospital.Infrastructure.Repositories
 {
     public class Repository<T> : IRepository<T> where T : class
     {
-        private readonly ApplicationDbContext _dbContext;
-        private readonly DbSet<T> _dbSet;
+        protected readonly ApplicationDbContext _dbContext;
+        protected readonly DbSet<T> _dbSet;
 
         public Repository(ApplicationDbContext dbContext)
         {

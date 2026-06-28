@@ -10,7 +10,7 @@ namespace Hospital.Infrastructure.Repositories
         public DoctorRepository(ApplicationDbContext dbContext) : base(dbContext) { }
         public async Task<Doctor?> GetByUserIdAsync(string userId)
         {
-            await _dbContext.Doctors.FirstOrDefaultAsync(d => d.UserId == userId)
+            return await _dbContext.Doctors.FirstOrDefaultAsync(d => d.UserId == userId);
         }
     }
 }
