@@ -66,7 +66,8 @@ namespace Hospital.Controllers
         [Authorize(Roles = "Patient")]
         public async Task<IActionResult> Book(AppointmentDto dto)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)
+                ?? throw new UnauthorizedAppException("User is not authenticated");
             var patient = await _patientRepository.GetByUserIdAsync(userId);
             if (patient == null)
             {
