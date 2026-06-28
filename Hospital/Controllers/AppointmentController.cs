@@ -84,9 +84,26 @@ namespace Hospital.Controllers
         [HttpPut("cancel/{id}")]
         public async Task<IActionResult> Cancel(int id)
         {
-            var result = await _appointmentService.CancelAppointmentAsync(id);
+            var isadmin = User.IsInRole(Roles.Admin);
+            int? callerPatientId = null;
+            int? callerDoctorId = null;
+            if (!isadmin)
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)
+                    ?? throw new UnauthorizedAppException("User is not authenticated.");
 
-            if (result == null) return NotFound(new { message = "Appointment not found" });
+                if (User.IsInRole(Roles.Patient))
+                {
+                    callerPatientId = (await _patientRepository.GetByUserIdAsync(userId))?.Id;
+                }
+                else if (User.IsInRole(Roles.Doctor))
+                {
+                    callerDoctorId = (await _doctorRepository.GetByUserIdAsync(userId))?.Id;
+                }
+            }
+            var cancelled = await _appointmentService.CancelAppointmentAsync(id, callerPatientId, callerDoctorId, isadmin);
+
+            if (!cancelled) return NotFound(new { message = "Appointment not found" });
             return Ok(new { message = "Appointment cancelled successfully" });
         }
 
