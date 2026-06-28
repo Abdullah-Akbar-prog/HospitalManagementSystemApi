@@ -66,9 +66,9 @@ namespace Hospital.Application.Services
             return _mapper.Map<List<AppointmentDto>>(appointments);
         }
 
-        public Task<List<AppointmentDto?>> GetByDoctorIdAsync(int id)
+        public async Task<List<AppointmentDto?>> GetByDoctorIdAsync(int doctorId)
         {
-            var appointments = await _appointmentRepository.GetByDoctorIdAsync(id);
+            var appointments = await _appointmentRepository.GetByDoctorIdAsync(doctorId);
             return _mapper.Map<List<AppointmentDto>>(appointments);
         }
 
@@ -78,9 +78,9 @@ namespace Hospital.Application.Services
             return appointment == null ? null : _mapper.Map<AppointmentDto>(appointment);
         }
 
-        public Task<List<AppointmentDto?>> GetByPatientIdAsync(int id)
+        public async Task<List<AppointmentDto?>> GetByPatientIdAsync(int patientId)
         {
-            var appointments = await _appointmentRepository.GetByPatientIdAsync(id);
+            var appointments = await _appointmentRepository.GetByPatientIdAsync(patientId);
             return _mapper.Map<List<AppointmentDto>>(appointments);
         }
     }
