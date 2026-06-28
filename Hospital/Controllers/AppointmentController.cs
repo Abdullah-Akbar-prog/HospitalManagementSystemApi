@@ -82,8 +82,6 @@ namespace Hospital.Controllers
         }
 
         [HttpPut("cancel/{id}")]
-        [Authorize(Roles = "Admin,Doctor")]
-
         public async Task<IActionResult> Cancel(int id)
         {
             var result = await _appointmentService.CancelAppointmentAsync(id);
@@ -96,8 +94,21 @@ namespace Hospital.Controllers
         {
             if (User.IsInRole(Roles.Admin))
             {
-                return false;
+                return true;
             }
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null) return false;
+
+            if (User.IsInRole(Roles.Doctor))
+            {
+                var doctor = await _doctorRepository.GetByUserIdAsync(userId);
+                return doctor != null && doctor.Id == appointment.DoctorId;
+            }
+
+            var patient = await _patientRepository.GetByUserIdAsync(userId);
+            return patient != null && patient.Id == appointment.PatientId;
+
         }
     }
 }
