@@ -1,4 +1,5 @@
-﻿using Hospital.Application.DTOs;
+﻿using AutoMapper;
+using Hospital.Application.DTOs;
 using Hospital.Application.Interfaces.Repositories;
 using Hospital.Application.Interfaces.Services;
 using Hospital.Domain.Entities;
@@ -9,10 +10,12 @@ namespace Hospital.Application.Services
     public class AppointmentService : IAppointmentService
     {
         private readonly IAppointmentRepository _appointmentRepository;
+        private readonly IMapper _mapper;
 
-        public AppointmentService(IAppointmentRepository appointmentRepository)
+        public AppointmentService(IAppointmentRepository appointmentRepository, IMapper mapper)
         {
             _appointmentRepository = appointmentRepository;
+            _mapper = mapper;
         }
 
         public async Task<int> BookAppointmentAsync(AppointmentDto dto, int patientId)
