@@ -15,6 +15,13 @@ namespace Hospital.Controllers
             _authService = authService;
         }
 
+        [HttpGet("available-roles")]
+        public async Task<IActionResult> GetAvailableRoles()
+        {
+            var token = await _authService.GetAvailableRolesAsync();
+            return token;
+        }
+
         [HttpPost("register")]
         public async Task<ActionResult> Register(RegisterDto dto)
         {
