@@ -19,7 +19,7 @@ namespace Hospital.Controllers
         public async Task<IActionResult> GetAvailableRoles()
         {
             var token = await _authService.GetAvailableRolesAsync();
-            return token;
+            return Ok(token);
         }
 
         [HttpPost("register")]

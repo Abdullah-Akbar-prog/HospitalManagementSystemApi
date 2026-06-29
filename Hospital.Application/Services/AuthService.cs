@@ -1,5 +1,7 @@
 ﻿using Hospital.Application.DTOs;
 using Hospital.Application.Interfaces.Services;
+using Hospital.Domain.Common;
+using Hospital.Domain.Exceptions;
 using Hospital.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 
@@ -14,6 +16,12 @@ namespace Hospital.Application.Services
         {
             _jwtService = jwtService;
             _userManager = userManager;
+        }
+
+        public async Task<List<string>> GetAvailableRolesAsync()
+        {
+            var admin = await _userManager.GetUsersInRoleAsync(Roles.Admin);
+            return admin.Count == 0 ? Roles.All.ToList() : Roles.RegistrableNonAdmin.ToList();
         }
 
         public async Task<string> LoginAsync(LoginDto dto)
@@ -36,12 +44,10 @@ namespace Hospital.Application.Services
 
         public async Task<string> RegisterAsync(RegisterDto dto)
         {
-            var user = new ApplicationUser
-            {
-                FullName = dto.FullName,
-                Email = dto.Email,
-                UserName = dto.Email
-            };
+            var existingUser = await _userManager.FindByEmailAsync(dto.Email);
+            if (existingUser != null) throw new BadRequestException("Email already register");
+
+            var requestRole = dto.Roles?.Trim();
 
             var result = _userManager.CreateAsync(user, dto.Password);
 
