@@ -48,7 +48,7 @@ namespace Hospital.Application.Services
             if (existingUser != null) throw new BadRequestException("Email already register");
 
             var requestedRole = dto.Role?.Trim();
-            if (string.IsNullOrEmpty(requestedRole) || !Roles.All.Contains(requestRole, StringComparer.OrdinalIgnoreCase))
+            if (string.IsNullOrEmpty(requestedRole) || !Roles.All.Contains(requestedRole, StringComparer.OrdinalIgnoreCase))
             {
                 throw new BadRequestException($"Role must be one of : {string.Join(", ", Roles.All)}");
             }
@@ -72,7 +72,7 @@ namespace Hospital.Application.Services
             if (!result.Succeeded)
             {
                 var error = string.Join(";", result.Errors.Select(e => e.Description));
-                throw new BadRequestException($"User registration failed : {error}")
+                throw new BadRequestException($"User registration failed : {error}");
             }
             await _userManager.AddToRoleAsync(user, requestedRole);
             var roles = await _userManager.GetRolesAsync(user);

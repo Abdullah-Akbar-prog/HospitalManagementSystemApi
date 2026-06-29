@@ -7,5 +7,6 @@
         Task<T?> GetByIdAsync(int id);
         Task UpdateAsync(T entity);
         Task<bool> DeleteAsync(int id);
+        Task<int> CountAsync();
     }
 }
