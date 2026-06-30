@@ -20,6 +20,11 @@ namespace Hospital.Application.Mapping
 
             CreateMap<Appointment, AppointmentDto>()
                 .ForMember(d => d.Status, opt => opt.MapFrom(s => s.Status.ToString()));
+
+            CreateMap<MedicalRecord, MedicalRecordDto>();
+            CreateMap<MedicalRecordDto, MedicalRecord>()
+                .ForMember(d => d.Id, opt => opt.Ignore())
+                .ForMember(d => d.DoctorId, opt => opt.Ignore());
         }
 
     }

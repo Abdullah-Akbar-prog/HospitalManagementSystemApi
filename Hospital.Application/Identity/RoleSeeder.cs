@@ -1,5 +1,7 @@
-﻿using Hospital.Infrastructure.Identity;
+﻿using Hospital.Domain.Common;
+using Hospital.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Hospital.Application.Identity
@@ -10,9 +12,7 @@ namespace Hospital.Application.Identity
         {
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-            string[] roles = { "Admin", "Doctor", "Patient" };
-
-            foreach (var role in roles)
+            foreach (var role in Roles.All)
             {
                 if (!await roleManager.RoleExistsAsync(role))
                 {
@@ -23,35 +23,46 @@ namespace Hospital.Application.Identity
 
         public static async Task SeedAdminAsync(IServiceProvider serviceProvider)
         {
+            var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+            var adminEmail = configuration["Seed:AdminEmail"];
+            var adminPassword = configuration["Seed:AdminPassword"];
+
+            if (string.IsNullOrWhiteSpace(adminEmail) || string.IsNullOrWhiteSpace(adminPassword))
+            {
+                return;
+            }
+
             var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-            string adminEmail = "admin@gamil.com";
-            string adminPasswrod = "Admin@123";
-
-            if (!await roleManager.RoleExistsAsync("Admin"))
+            var existingAdmins = await userManager.GetUsersInRoleAsync(Roles.Admin);
+            if (existingAdmins.Count > 0)
             {
-                await roleManager.CreateAsync(new IdentityRole("Admin"));
+                return;
+            }
+
+            if (!await roleManager.RoleExistsAsync(Roles.Admin))
+            {
+                await roleManager.CreateAsync(new IdentityRole(Roles.Admin));
             }
 
             var adminUser = await userManager.FindByEmailAsync(adminEmail);
-
             if (adminUser == null)
             {
                 adminUser = new ApplicationUser
                 {
-                    UserName = "admin",
+                    UserName = adminEmail,
                     Email = adminEmail,
+                    FullName = "System Administrator",
                     EmailConfirmed = true
                 };
 
-                var result = await userManager.CreateAsync(adminUser, adminPasswrod);
+                var result = await userManager.CreateAsync(adminUser, adminPassword);
                 if (result.Succeeded)
                 {
-                    await userManager.AddToRoleAsync(adminUser, "Admin");
+                    await userManager.AddToRoleAsync(adminUser, Roles.Admin);
                 }
             }
-
         }
     }
 }
