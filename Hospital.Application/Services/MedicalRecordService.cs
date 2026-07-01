@@ -2,6 +2,7 @@
 using Hospital.Application.DTOs;
 using Hospital.Application.Interfaces.Repositories;
 using Hospital.Application.Interfaces.Services;
+using Hospital.Domain.Entities;
 using Hospital.Domain.Exceptions;
 
 namespace Hospital.Application.Services
@@ -19,11 +20,11 @@ namespace Hospital.Application.Services
 
         public async Task<int> CreateAsync(MedicalRecordDto dto, int doctorId)
         {
-            var record = _mapper.Map<MedicalRecordDto>(dto);
+            var record = _mapper.Map<MedicalRecord>(dto);
             record.DoctorId = doctorId;
 
             var result = await _medicalRecordRepository.AddAsync(record);
-            return result;
+            return result.Id;
         }
 
         public async Task<bool> DeleteAsync(int id, int? callerDoctorId, bool isAdmin)
