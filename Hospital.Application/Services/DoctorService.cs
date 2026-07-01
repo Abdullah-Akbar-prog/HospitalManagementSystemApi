@@ -1,40 +1,40 @@
-﻿using Hospital.Application.DTOs;
+﻿using AutoMapper;
+using Hospital.Application.DTOs;
 using Hospital.Application.Interfaces.Repositories;
 using Hospital.Application.Interfaces.Services;
 using Hospital.Domain.Entities;
-using Microsoft.AspNetCore.Http;
-using System.Security.Claims;
+using Hospital.Domain.Exceptions;
 
 namespace Hospital.Application.Services
 {
     public class DoctorService : IDoctorService
     {
         private readonly IDoctorRepository _doctorRepository;
-        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IMapper _mapper;
 
-        public DoctorService(IDoctorRepository doctorRepository, IHttpContextAccessor httpContextAccessor)
+        public DoctorService(IDoctorRepository doctorRepository, IMapper mapper)
         {
             _doctorRepository = doctorRepository;
-            _httpContextAccessor = httpContextAccessor;
+            _mapper = mapper;
         }
 
-        public async Task<int> CreateAsync(DoctorDto dto)
-        {
-            var userId = _httpContextAccessor.HttpContext?.
-            User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (userId == null)
+        public async Task<int> CreateAsync(DoctorDto dto, string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
             {
-                throw new Exception("User is not authenticated");
+                throw new BadRequestException("A valid userId is required to create a doctor profile.");
             }
 
-            var doctor = new Doctor
+            var existing = await _doctorRepository.GetByUserIdAsync(userId);
+            if (existing != null)
             {
-                UserId = userId,
-                FullName = dto.FullName,
-                Specialization = dto.Specialization,
-                LicenseNumber = dto.LicenseNumber
-            };
+                throw new BadRequestException("A doctor profile already exists for this user.");
+            }
+
+            var doctor = _mapper.Map<Doctor>(dto);
+            doctor.UserId = userId;
+
             var result = await _doctorRepository.AddAsync(doctor);
             return result.Id;
         }
@@ -42,48 +42,36 @@ namespace Hospital.Application.Services
         public async Task<List<DoctorDto>> GetAllAsync()
         {
             var doctors = await _doctorRepository.GetAllAsync();
-
-            return doctors.Select(d => new DoctorDto
-            {
-                Id = d.Id,
-                FullName = d.FullName,
-                Specialization = d.Specialization,
-                LicenseNumber = d.LicenseNumber
-            }).ToList();
+            return _mapper.Map<List<DoctorDto>>(doctors);
         }
 
         public async Task<DoctorDto> GetByIdAsync(int id)
         {
-            var doctor = await _doctorRepository.GetByIdAsync(id);
-            if (doctor == null)
-            {
-                return null;
-            }
+            var doctor = await _doctorRepository.GetByIdAsync(id)
+                ?? throw new NotFoundException($"Doctor {id} not found.");
 
-            return new DoctorDto
-            {
-                Id = doctor.Id,
-                FullName = doctor.FullName,
-                Specialization = doctor.Specialization,
-                LicenseNumber = doctor.LicenseNumber
-            };
+            return _mapper.Map<DoctorDto>(doctor);
         }
 
-        public async Task<bool> UpdateAsync(DoctorDto dto)
+        public async Task<bool> UpdateAsync(DoctorDto dto, string callerUserId, bool isAdmin)
         {
             var doctor = await _doctorRepository.GetByIdAsync(dto.Id);
             if (doctor == null) return false;
 
-            doctor.FullName = dto.FullName;
-            doctor.Specialization = dto.Specialization;
-            doctor.LicenseNumber = dto.LicenseNumber;
+            if (!isAdmin && doctor.UserId != callerUserId)
+            {
+                throw new UnauthorizedAppException("You can only update your own doctor profile.");
+            }
+
+            _mapper.Map(dto, doctor);
             await _doctorRepository.UpdateAsync(doctor);
             return true;
         }
 
-        public async Task<bool> DeleteAsync(int id)
-        {
-            return await _doctorRepository.DeleteAsync(id);
-        }
+        public async Task<bool> DeleteAsync(int id) =>
+            await _doctorRepository.DeleteAsync(id);
+
+        public async Task<Doctor?> GetByUserIdAsync(string userId) =>
+            await _doctorRepository.GetByUserIdAsync(userId);
     }
 }

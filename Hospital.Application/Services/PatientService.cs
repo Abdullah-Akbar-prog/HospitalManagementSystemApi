@@ -4,6 +4,7 @@ using Hospital.Application.Interfaces.Repositories;
 using Hospital.Application.Interfaces.Services;
 using Hospital.Domain.Common;
 using Hospital.Domain.Entities;
+using Hospital.Domain.Exceptions;
 
 namespace Hospital.Application.Services
 {
@@ -60,13 +61,17 @@ namespace Hospital.Application.Services
             return await _patientRepository.GetByUserIdAsync(userId);
         }
 
-        public async Task<bool> UpdateAsync(PatientDto dto)
+        public async Task<bool> UpdateAsync(PatientDto dto, string callerUserId, bool isAdmin)
         {
             var patient = await _patientRepository.GetByIdAsync(dto.Id);
             if (patient == null) return false;
 
-            _mapper.Map(dto, patient);
+            if (!isAdmin && patient.UserId != callerUserId)
+            {
+                throw new UnauthorizedAppException("You can only update your own patient profile.");
+            }
 
+            _mapper.Map(dto, patient);
             await _patientRepository.UpdateAsync(patient);
             return true;
         }

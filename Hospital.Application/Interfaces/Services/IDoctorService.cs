@@ -10,6 +10,6 @@ namespace Hospital.Application.Interfaces.Services
         Task<int> CreateAsync(DoctorDto dt, string userId);
         Task<bool> UpdateAsync(DoctorDto dto, string callerUserId, bool isAdmin);
         Task<bool> DeleteAsync(int id);
-        Task<Doctor?> GetByUserIdAsync(int id);
+        Task<Doctor?> GetByUserIdAsync(string userId);
     }
 }
